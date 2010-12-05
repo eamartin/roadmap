@@ -14,5 +14,5 @@ def yes(string):
 
 @r.destination(r'(.+)@.+', pass_obj=False)
 def email(username):
-    '''doesnt pass the string itself, just the catpure from the regex'''
+    '''doesnt pass the string itself, just the capture from the regex'''
     print username
