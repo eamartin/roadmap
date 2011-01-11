@@ -8,6 +8,14 @@ class Roadmap(dict):
         pass
 
     def destination(self, reg_str, pass_obj=True):
+        '''Maps a regular expression to a function in the internal dictionary
+        of the Roadmap instance.
+
+        This method should be primarily used as a decorator with parameters.
+        The ``reg_str`` parameter is a raw string that will be made into a
+        regular expression. ``pass_obj`` determines if the object passed to
+        Roadmap.route will be passed to the function.
+        '''
         regex = re.compile(reg_str)
 
         def decorator(func):
@@ -41,11 +49,7 @@ class Roadmap(dict):
             return self[regex]['func'](*args, **kwargs)
 
     def route(self, obj, key=None):
-        if key:
-            string = key
-        else:
-            string = obj
-
+        string = key or obj
         for regex in self.keys():
             match = regex.match(string)
             if match:
