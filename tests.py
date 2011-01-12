@@ -51,7 +51,7 @@ def route_with_captured_group(instance, L):
     Assert(L[-1]) == 'ORG ADDRESS: %s' % string.split('@')[0]
 
 @roadmap.test
-def route_object_by_string(instance, L):
+def route_object_by_key(instance, L):
     class Email(object):
 
         def __init__(self, adr):
