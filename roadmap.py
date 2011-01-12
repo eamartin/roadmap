@@ -11,7 +11,17 @@ def coroutine(func):
 
 class Router(dict):
 
-    def __init__(self):
+    def __init__(self, processor):
+        @coroutine
+        def _processor():
+            try:
+                while True:
+                    obj = (yield)
+                    processor(obj)
+            except GeneratorExit:
+                pass
+
+        self.processor = _processor()
         self.find_match_target = self.find_match()
 
     def destination(self, reg_str, pass_obj=True):
@@ -56,22 +66,15 @@ class Router(dict):
 
     @coroutine
     def process_pair(self):
-        try:
-            while True:
-                parameters = (yield)
-                regex = parameters[0]
-                obj = parameters[1]
-                args = parameters[2]
-                kwargs = parameters[3]
+        while True:
+            regex, obj, args, kwargs = (yield)
 
-                if self[regex]['pass_obj']:
-                    if hasattr(obj, '__iter__'):
-                        objects = [o for o in obj]
-                        objects.extend(args)
-                        self[regex]['func'](*objects, **kwargs)
-                    else:
-                        self[regex]['func'](obj, *args, **kwargs)
+            if self[regex]['pass_obj']:
+                if hasattr(obj, '__iter__'):
+                    objects = [o for o in obj]
+                    objects.extend(args)
+                    self.processor.send(self[regex]['func'](*objects, **kwargs))
                 else:
-                    self[regex]['func'](*args, **kwargs)
-        except GeneratorExit:
-            pass
+                    self.processor.send(self[regex]['func'](obj, *args, **kwargs))
+            else:
+                self.processor.send(self[regex]['func'](*args, **kwargs))

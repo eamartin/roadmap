@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from attest import Tests, Assert
-from roadmap import Roadmap
+from roadmap import Router
 
 roadmap = Tests()
 
 @roadmap.context
 def make_context():
-    r = Roadmap()
+    L = []
+
+    r = Router(L.append)
 
     @r.destination(r'^[yY]', pass_obj=False)
     def yes():
@@ -25,28 +27,31 @@ def make_context():
     def com_address(email_obj):
         return 'COM ADDRESS: %s' % email_obj.address
 
-    yield r
+    yield r, L
 
 @roadmap.test
-def initialization(instance):
-    assert isinstance(instance, Roadmap)
+def initialization(instance, L):
+    assert isinstance(instance, Router)
 
 @roadmap.test
-def route_without_passing_obj(instance):
-    Assert(instance.route('yeah')) == 'YES'
+def route_without_passing_obj(instance, L):
+    instance.route('yeah')
+    Assert(L[-1]) == 'YES'
 
 @roadmap.test
-def route_with_passing_obj(instance):
+def route_with_passing_obj(instance, L):
     string = 'No way'
-    Assert(instance.route(string)) == 'NO: %s' % string
+    instance.route(string)
+    Assert(L[-1]) == 'NO: %s' % string
 
 @roadmap.test
-def route_with_captured_group(instance):
+def route_with_captured_group(instance, L):
     string = 'email@example.org'
-    Assert(instance.route(string)) == 'ORG ADDRESS: %s' % string.split('@')[0]
+    instance.route(string)
+    Assert(L[-1]) == 'ORG ADDRESS: %s' % string.split('@')[0]
 
 @roadmap.test
-def route_object_by_string(instance):
+def route_object_by_string(instance, L):
     class Email(object):
 
         def __init__(self, adr):
@@ -54,7 +59,8 @@ def route_object_by_string(instance):
 
     string = 'email@example.com'
     obj = Email(string)
-    Assert(instance.route(obj, key=obj.address)) == 'COM ADDRESS: %s' % string
+    instance.route(obj, key=obj.address)
+    Assert(L[-1]) == 'COM ADDRESS: %s' % string
 
 if __name__ == '__main__':
     roadmap.main()
