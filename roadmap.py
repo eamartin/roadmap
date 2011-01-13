@@ -104,6 +104,13 @@ class Router(dict):
             return func
         return decorator
 
+    def get_function(self, obj, key=None):
+        string = key or obj
+        for regex in self.keys():
+            match = regex.match(string)
+            if match:
+                return self[regex]['func']
+
     def route(self, obj, key=None):
         '''Maps an object to its appropriate function
 
