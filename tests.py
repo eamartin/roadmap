@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from attest import Tests, Assert
-from roadmap import Router
+from attest import Assert, Tests
+import roadmap
 
-roadmap = Tests()
+roadmap_tests = Tests()
 
-@roadmap.context
+@roadmap_tests.context
 def make_context():
     L = []
 
-    r = Router(L.append)
+    r = roadmap.Router(L.append)
 
     @r.destination(r'^[yY]', pass_obj=False)
     def starts_with_y():
@@ -33,28 +33,28 @@ def make_context():
 
     yield r, L
 
-@roadmap.test
+@roadmap_tests.test
 def initialization(instance, L):
-    assert isinstance(instance, Router)
+    Assert.isinstance(instance, roadmap.Router)
 
-@roadmap.test
+@roadmap_tests.test
 def route_without_passing_obj(instance, L):
     instance.route('yeah')
     Assert(L[-1]) == 'YES'
 
-@roadmap.test
+@roadmap_tests.test
 def route_with_passing_obj(instance, L):
     string = 'No way'
     instance.route(string)
     Assert(L[-1]) == 'NO: %s' % string
 
-@roadmap.test
+@roadmap_tests.test
 def route_with_captured_group(instance, L):
     string = 'org:email@example.org'
     instance.route(string)
     Assert(L[-1]) == 'ORG ADDRESS: %s' % string.split(':')[1].split('@')[0]
 
-@roadmap.test
+@roadmap_tests.test
 def route_object_by_key(instance, L):
     class Email(object):
 
@@ -66,12 +66,12 @@ def route_object_by_key(instance, L):
     instance.route(obj, key=obj.address)
     Assert(L[-1]) == 'COM ADDRESS: %s' % string
 
-@roadmap.test
+@roadmap_tests.test
 def get_function(instance, L):
     Assert(instance.get_function('com:email@example.com').__name__) == \
                                                                    'com_address'
 
-@roadmap.test
+@roadmap_tests.test
 def argument_passing(instance, L):
     string = 'endbeforewwwwafter'
     objs = ('woot', 'scoot')
@@ -80,4 +80,4 @@ def argument_passing(instance, L):
 
 
 if __name__ == '__main__':
-    roadmap.main()
+    roadmap_tests.main()
