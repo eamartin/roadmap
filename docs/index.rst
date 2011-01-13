@@ -12,6 +12,8 @@ Contents:
    :maxdepth: 2
 
    introduction
+   examples
+
 
 Indices and tables
 ==================
